@@ -42,14 +42,21 @@ handlePostRequest('/login', function ($request) {
 // Rota protegida de exemplo
 handleGetProtectedRequest('/protected', function () {
     $authResult = AuthMiddleware::handle(getallheaders());
-    json_encode(['message' => $authResult]);
-    $response = [
-        'authMessage' => $authResult,
-        'routeMessage' => 'You have accessed a protected route'
-    ];
-    return
-        json_encode($response);
-    // json_encode(['message' => 'You have accessed a protected route']);
+    if (isset($authResult->iss) && isset($authResult->sub) && isset($authResult->iat) && isset($authResult->exp)) {
+        // Acesso autorizado
+        $response = [
+            'authMessage' => 'Authentication successful',
+            'routeMessage' => 'You have accessed a protected route'
+        ];
+    } else {
+        // Acesso negado
+        $response = [
+            'authMessage' => $authResult,
+            'routeMessage' => 'Access denied'
+        ];
+    }
+    // return json_encode($authResult->iss);
+    return json_encode($response);
 });
 
 

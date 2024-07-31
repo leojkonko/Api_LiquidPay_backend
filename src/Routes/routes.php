@@ -17,3 +17,9 @@ handlePostRequest('/register', function ($request) {
     $controller = new UserController();
     return $controller->register($request);
 });
+
+// Rota para login de usuário
+handlePostRequest('/login', function ($request) {
+    $controller = new UserController();
+    return $controller->login($request);
+});

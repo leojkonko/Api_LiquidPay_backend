@@ -1,0 +1,18 @@
+{
+    "name": "vendor/composer",
+    "autoload": {
+        "psr-4": {
+            "Vendor\\Composer\\": "src/", 
+            "App\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "leojkonko",
+            "email": "leonardolinomeyer@gmail.com"
+        }
+    ],
+    "require": {
+        "firebase/php-jwt": "^6.10"
+    }
+}

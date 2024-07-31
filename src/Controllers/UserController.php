@@ -28,12 +28,21 @@ class UserController
     public function login($request)
     {
         // Validação dos dados de entrada
-        if (empty($request['email']) || empty($request['password'])) {
-            return Response::json(['error' => 'Email and password are required'], 400);
+        if (empty($request['email']) && empty($request['cpf'])) {
+            return Response::json(['error' => 'Email or cpf are required'], 400);
+        }
+
+        if (!empty($request['email'])) {
+            $user = User::findByEmail($request['email']);
+        } else if (!empty($request['cpf'])) {
+            $user = User::findByCpf($request['cpf']);
+        }
+
+        if (empty($request['password'])) {
+            return Response::json(['error' => 'Password are required'], 400);
         }
 
         // Verificação do usuário
-        $user = User::findByEmail($request['email']);
         if ($user && password_verify($request['password'], $user->password)) {
             // Geração do token JWT
             $payload = [

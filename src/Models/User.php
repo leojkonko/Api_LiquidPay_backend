@@ -39,4 +39,12 @@ class User
         $stmt->setFetchMode(PDO::FETCH_CLASS, self::class);
         return $stmt->fetch();
     }
+    public static function findByCpf($cpf)
+    {
+        $db = Database::getInstance();
+        $stmt = $db->prepare("SELECT * FROM users WHERE cpf = ?");
+        $stmt->execute([$cpf]);
+        $stmt->setFetchMode(PDO::FETCH_CLASS, self::class);
+        return $stmt->fetch();
+    }
 }

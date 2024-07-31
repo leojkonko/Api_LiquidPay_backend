@@ -47,4 +47,12 @@ class User
         $stmt->setFetchMode(PDO::FETCH_CLASS, self::class);
         return $stmt->fetch();
     }
+    public static function all()
+    {
+        $db = Database::getInstance();
+        $stmt = $db->prepare("SELECT * FROM users");
+        $stmt->execute();
+        $stmt->setFetchMode(PDO::FETCH_CLASS, self::class);
+        return $stmt->fetchAll();
+    }
 }

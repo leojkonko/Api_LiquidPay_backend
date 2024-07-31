@@ -57,4 +57,10 @@ class UserController
             return Response::json(['error' => 'Invalid credentials'], 401);
         }
     }
+
+    public function index()
+    {
+        $users = User::all();
+        return Response::json($users);
+    }
 }

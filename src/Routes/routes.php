@@ -51,3 +51,10 @@ handleGetProtectedRequest('/protected', function () {
         json_encode($response);
     // json_encode(['message' => 'You have accessed a protected route']);
 });
+
+
+// Rota para listar usuários
+handleGetProtectedRequest('/users', function () {
+    $controller = new UserController();
+    return $controller->index();
+});

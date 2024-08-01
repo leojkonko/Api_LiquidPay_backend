@@ -12,6 +12,7 @@ class User
     public $cpf;
     public $email;
     public $password;
+    public $balance;
 
     public function __construct($data = null)
     {
@@ -20,6 +21,7 @@ class User
             $this->cpf = $data['cpf'];
             $this->email = $data['email'];
             $this->password = password_hash($data['password'], PASSWORD_BCRYPT);
+            $this->balance = $data['balance'] ?? 0;
         }
     }
 
@@ -54,5 +56,18 @@ class User
         $stmt->execute();
         $stmt->setFetchMode(PDO::FETCH_CLASS, self::class);
         return $stmt->fetchAll();
+    }
+    public static function find($id): ?User
+    {
+        global $pdo;
+        $stmt = $pdo->prepare('SELECT * FROM users WHERE id = :id');
+        $stmt->execute(['id' => $id]);
+        $data = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        if ($data) {
+            return new User($data);
+        } else {
+            return null;
+        }
     }
 }

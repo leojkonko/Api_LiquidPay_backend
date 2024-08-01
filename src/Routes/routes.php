@@ -3,6 +3,9 @@
 use App\Controllers\UserController;
 use App\Middleware\AuthMiddleware;
 
+// $pdo = new PDO('mysql:host=localhost;dbname=liquidpay', 'root', '');
+
+
 // Função para lidar com solicitações POST
 function handlePostRequest($path, $callback)
 {
@@ -64,4 +67,10 @@ handleGetProtectedRequest('/protected', function () {
 handleGetProtectedRequest('/users', function () {
     $controller = new UserController();
     return $controller->index();
+});
+
+// Rota para adicionar créditos
+handlePostRequest('/api/add-credits', function ($request) {
+    $controller = new UserController();
+    return $controller->addCredits($request);
 });

@@ -57,17 +57,27 @@ class User
         $stmt->setFetchMode(PDO::FETCH_CLASS, self::class);
         return $stmt->fetchAll();
     }
-    public static function find($id): ?User
+    public static function find($id)
     {
-        global $pdo;
-        $stmt = $pdo->prepare('SELECT * FROM users WHERE id = :id');
+        $db = Database::getInstance();
+        $stmt = $db->prepare('SELECT * FROM users WHERE id = :id');
         $stmt->execute(['id' => $id]);
-        $data = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $stmt->setFetchMode(PDO::FETCH_CLASS, self::class);
+        return $stmt->fetch();
+        // if ($data) {
+        //     return new User($data);
+        // } else {
+        //     return null;
+        // }
+    }
+    public function addCredits($userId, $amount)
+    {
+        $db = Database::getInstance();
+        $stmt = $db->prepare('UPDATE users SET balance = balance + :amount WHERE id = :id');
+        $executed =  $stmt->execute(['amount' => $amount, 'id' => $userId]);
+        // $stmt->setFetchMode(PDO::FETCH_CLASS, self::class);
+        // return $stmt->fetch();
 
-        if ($data) {
-            return new User($data);
-        } else {
-            return null;
-        }
+        return $executed;
     }
 }

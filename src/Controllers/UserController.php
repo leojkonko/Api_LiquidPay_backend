@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\User;
+use App\Models\Transaction;
 use App\Services\Response;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
@@ -90,6 +91,7 @@ class UserController
         $valid = $request['card_valid'];
         $cvv = $request['card_cvv'];
         $amount = $request['amount'];
+        $userId = $request['user_id'];
 
         // 1. Validação do tipo de cartão
         if (!in_array(
@@ -130,9 +132,12 @@ class UserController
             echo json_encode(['message' => 'Valor inválido para aprovação']);
             return;
         }
+        // 5. Validação do id
+        if (!isset($userId)) {
+            http_response_code(400);
+            return json_encode(['message' => 'id user not found']);
+        }
 
-        // Aqui você pode adicionar a lógica para adicionar créditos
-        // Envio para a LiquidBank, atualização de saldo, etc.
         // Envio para a LiquidBank
         $response = $this->sendToLiquidBank([
             'type' => $type,
@@ -143,75 +148,54 @@ class UserController
             'amount' => $amount
         ]);
 
-        // if ($response['status'] == 'approved') {
-        //     echo json_encode(['message' => 'Créditos com sucesso']);
-        // } else {
-        //     echo json_encode(['message' => 'Créditos nop com sucesso']);
-        // }
+        //encontrar user correto
+        $user = User::find($userId);
+        $userId_to_number = $user->id;
+        //registro da transação
+        // Registro da transação (independentemente do status)
+        $transactionId = $response['transaction']['id'];
+        $transactionStatus = $response['transaction']['statusCode'];
+        $transaction = new Transaction();
+        $response_transaction = $transaction->registerTransaction($userId_to_number, $amount, $transactionStatus, $transactionId);
+        if ($response_transaction) {
+            echo json_encode(['message' => "registro cadastrado com sucesso em transações"]);
+        } else {
+            echo json_encode(['message' => "erro register cadaster"]);
+        }
 
-        return json_encode(['message return api' => $response]);
-        // http_response_code(200);
-        echo json_encode(['message' => 'Créditos adicionados com sucesso']);
+        // return json_encode(['message111' => $response]);
+        if ($response['transaction']['statusCode'] == 1) {
+
+            //atualiza saldo do usuario
+            if ($user && $userId_to_number) {
+                $userModel = new User();
+                $response = $userModel->addCredits($userId_to_number, $amount);
+                if ($response) {
+                    http_response_code(200);
+                    return json_encode(['message4' => 'Créditos adicionados com sucesso no user id: ' . $userId_to_number]);
+                } else {
+                    http_response_code(404);
+                    return json_encode(['message4' => 'User not found - database error']);
+                }
+            } else {
+                http_response_code(404);
+                echo json_encode(['message' => 'Usuário não encontrado']);
+            }
+        } else {
+            http_response_code(400);
+            echo json_encode(['message' => 'Transação negada pela LiquidBank', 'statusMessage' => $response['transaction']['statusMessage']]);
+        }
     }
 
     private function sendToLiquidBank($data)
     {
-        // return json_encode(['message' => 'Créditos adicionados com sucessodsfsd']);
-        // URL do endpoint da LiquidBank
-        $url = 'https://www.liquidworks.com.br/liquidbank/authorize';
-        $headers = [
-            'Content-Type: application/json',
-            // 'Authorization: Bearer your_api_key_here' // Substitua pelo seu token de autenticação real
-        ];
-
-        // Dados do payload
-        $payload = json_encode([
-            'type' => $data['type'], // 'debit' ou 'credit'
-            'number' => $data['number'], // Número do cartão
-            'brand' => $data['brand'], // 'visa' ou 'master'
-            'valid' => $data['valid'], // Validade no formato MM/YY
-            'cvv' => $data['cvv'], // Código de segurança do cartão
-            'amount' => $data['amount'] // Valor da transação
+        $client = new Client();
+        $response = $client->post('https://www.liquidworks.com.br/liquidbank/authorize', [
+            'json' => $data
         ]);
 
-        // Inicializando cURL
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+        $body = json_decode($response->getBody(), true);
 
-        // Executando e obtendo a resposta
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-        // Fechando a conexão cURL
-        curl_close($ch);
-        $apiResponse = json_decode($response, true);
-        return json_encode($apiResponse);
-        // Verificando a resposta da API
-        if ($httpCode == 200) {
-            // Supondo que a resposta da API seja JSON
-            $apiResponse = json_decode($response, true);
-
-            // Supondo que a API retorne um campo 'status' que pode ser 'approved' ou 'denied'
-            return json_encode($apiResponse);
-            if (isset($apiResponse['status']) && $apiResponse['status'] == 'approved') {
-                // return ['status' => 'approved'];
-                return json_encode($apiResponse);
-            } else {
-                // return ['status' => 'denied'];
-                return json_encode($apiResponse);
-            }
-        } else {
-            // Em caso de falha na comunicação com a API
-            return ['status' => 'denieddd'];
-        }
-    }
-
-    private function logTransaction($userId, $amount, $status)
-    {
-        // Registro da transação para auditoria
-        // Isso pode incluir salvar no banco de dados ou em logs
+        return $body;
     }
 }

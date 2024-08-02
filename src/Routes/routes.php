@@ -44,33 +44,72 @@ handlePostRequest('/login', function ($request) {
 
 // Rota protegida de exemplo
 handleGetProtectedRequest('/protected', function () {
-    $authResult = AuthMiddleware::handle(getallheaders());
-    if (isset($authResult->iss) && isset($authResult->sub) && isset($authResult->iat) && isset($authResult->exp)) {
-        // Acesso autorizado
-        $response = [
-            'authMessage' => 'Authentication successful',
-            'routeMessage' => 'You have accessed a protected route'
-        ];
+    $auth = authVerified();
+
+    $authData = json_decode($auth, true);
+
+    if (!$authData['authenticated']) {
+        echo json_encode(['error' => 'Access denied']);
+        return;
     } else {
-        // Acesso negado
-        $response = [
-            'authMessage' => $authResult,
-            'routeMessage' => 'Access denied'
-        ];
+        echo json_encode($auth);
     }
-    // return json_encode($authResult->iss);
-    return json_encode($response);
 });
 
 
 // Rota para listar usuários
 handleGetProtectedRequest('/users', function () {
+    $auth = authVerified();
+
+    $authData = json_decode($auth, true); // Decodifica a string JSON para um array
+
+    if (!$authData['authenticated']) {
+        // Retorna um erro de acesso negado se não autenticado
+        echo json_encode(['error' => 'Access denied']);
+        return;
+    } else {
+        echo json_encode($auth);
+    }
     $controller = new UserController();
     return $controller->index();
 });
 
 // Rota para adicionar créditos
 handlePostRequest('/api/add-credits', function ($request) {
+    $auth = authVerified();
+
+    $authData = json_decode($auth, true);
+
+    if (!$authData['authenticated']) {
+        echo json_encode(['error' => 'Access denied']);
+        return;
+    } else {
+        echo json_encode($auth);
+    }
+
     $controller = new UserController();
     return $controller->addCredits($request);
 });
+
+
+function authVerified()
+{
+    $authResult = AuthMiddleware::handle(getallheaders());
+    if (isset($authResult->iss) && isset($authResult->sub) && isset($authResult->iat) && isset($authResult->exp)) {
+        // Acesso autorizado
+        $response = [
+            'authMessage' => 'Authentication successful',
+            'routeMessage' => 'You have accessed a protected route',
+            'authenticated' => true
+        ];
+    } else {
+        // Acesso negado
+        $response = [
+            'authMessage' => $authResult,
+            'routeMessage' => 'Access denied',
+            'authenticated' => false
+        ];
+    }
+    // return json_encode($authResult->iss);
+    return json_encode($response);
+}

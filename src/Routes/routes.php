@@ -19,12 +19,13 @@ function handlePostRequest($path, $callback)
 // Função para lidar com solicitações GET protegidas
 function handleGetProtectedRequest($path, $callback)
 {
-    if ($_SERVER['REQUEST_METHOD'] === 'GET' && $_SERVER['REQUEST_URI'] === $path) {
+    if ($_SERVER['REQUEST_METHOD'] === 'GET' && parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) === $path) {
         $authResult = AuthMiddleware::handle(getallheaders());
         if (is_array($authResult) && isset($authResult['error'])) {
-            echo $authResult;
+            echo json_encode($authResult);
         } else {
-            echo $callback();
+            // Passa os parâmetros da query string para o callback
+            echo $callback($_GET);
         }
         exit;
     }
@@ -90,6 +91,22 @@ handlePostRequest('/api/add-credits', function ($request) {
     $controller = new UserController();
     return $controller->addCredits($request);
 });
+
+
+// Rota para listagem extrato
+handleGetProtectedRequest(
+    '/statement',
+    function ($data) {
+        $user_id = $data['user_id'] ?? null;
+        $startDate = $data['start_date'] ?? null;
+        $endDate = $data['end_date'] ?? null;
+
+        $controller = new UserController();
+        return $controller->getStatement($user_id, $startDate, $endDate);
+    }
+);
+
+
 
 
 function authVerified()

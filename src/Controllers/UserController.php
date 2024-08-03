@@ -5,9 +5,11 @@ namespace App\Controllers;
 use App\Models\User;
 use App\Models\Transaction;
 use App\Services\Response;
+use DateTime;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Message;
 
 class UserController
 {
@@ -75,16 +77,6 @@ class UserController
 
     public function addCredits($request)
     {
-        // Verifica se os campos obrigatórios estão presentes
-        // $requiredFields = ['card_type', 'card_number', 'card_brand', 'card_valid', 'card_cvv', 'amount'];
-        // foreach ($requiredFields as $field) {
-        //     if (!isset($request[$field])) {
-        //         http_response_code(400);
-        //         echo json_encode(['message' => 'Dados inválidos']);
-        //         return;
-        //     }
-        // }
-
         $type = $request['card_type'];
         $number = $request['card_number'];
         $brand = $request['card_brand'];
@@ -151,6 +143,7 @@ class UserController
         //encontrar user correto
         $user = User::find($userId);
         $userId_to_number = $user->id;
+
         //registro da transação
         // Registro da transação (independentemente do status)
         $transactionId = $response['transaction']['id'];
@@ -198,4 +191,37 @@ class UserController
 
         return $body;
     }
+
+    public function getStatement(
+        $user_id,
+        $startDate,
+        $endDate
+    ) {
+        if (
+            !$user_id || !$startDate || !$endDate || !isValidDate($startDate) || !isValidDate($endDate)
+        ) {
+            http_response_code(400);
+            return json_encode(['message' => 'Parâmetros de data inválidos. Envie start_date e end_date no formato YYYY-MM-DD']);
+        }
+        // Função para validar a data
+
+        // return json_encode(['message' => $startDate . '///' . $endDate]);
+        $transactionModel = new Transaction();
+        $transactions = $transactionModel->getTransactionsByPeriod($user_id, $startDate, $endDate);
+
+        if ($transactions) {
+            http_response_code(200);
+            return json_encode($transactions);
+        } else {
+            http_response_code(404);
+            return json_encode(['message' => 'Nenhuma transação encontrada para o período especificado']);
+        }
+    }
+}
+
+//validar data
+function isValidDate($date, $format = 'Y-m-d H:i:s')
+{
+    $d = DateTime::createFromFormat($format, $date);
+    return $d && $d->format($format) === $date;
 }

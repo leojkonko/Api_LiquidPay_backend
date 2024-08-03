@@ -73,63 +73,91 @@ or
 
 response: 
 {
+
     "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ5b3VyLWRvbWFpbi5jb20iLCJzdWIiOjEsImlhdCI6MTcyMjcxNzA3MywiZXhwIjoxNzIyNzIwNjczfQ.h9vQNeqoH9AKQdwptmmT4g-cBUGvf8xRpDffsbygI84"
+    
 }
+
+
 
 //////////////////////////////////
 
+
+
 POST 
+
 Host: localhost:3333/
+
 Route: http://localhost:3333/change-password 
+
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
 Content-Type: application/json
 
 {
+
     "user_id": 1,
     "current_password": "password3",
     "new_password": "password4"
+    
 }
 
 response: 
 
 "{\"authMessage\":\"Authentication successful\",\"routeMessage\":\"You have accessed a protected route\",\"authenticated\":true}"{
+
     "message": "Senha alterada com sucesso"
+    
 }
+
+
 
 //////////////////////////////////
 
+
+
 GET 
+
 Host: localhost:3333/
+
 Route: http://localhost:3333/users
+
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
 Content-Type: application/json
 
 response: 
 
 "{\"authMessage\":\"Authentication successful\",\"routeMessage\":\"You have accessed a protected route\",\"authenticated\":true}"[
     {
+    
         "id": 1,
         "name": "Leonardo",
         "cpf": "00949196071",
         "email": "leonardolino@gmail.com",
         "password": "$2y$10$nqGX1HaaSqSeizmYgC2ThODb8o4ch6bJnv3Kld1Lh6/2VoZEnuiVW",
         "balance": "100.00"
+        
     },
     {
+    
         "id": 2,
         "name": "Martins",
         "cpf": "00949196072",
         "email": "martinso@gmail.com",
         "password": "$2y$10$zljBBSSk0gEXJrotgV7Vwu4f91.a6wClZph9/1n0Ut15reW4NW7ZO",
         "balance": "2100.00"
+        
     },
     {
+    
         "id": 3,
         "name": "Giovana",
         "cpf": "00949196073",
         "email": "giovana@gmail.com",
         "password": "$2y$10$8KkOPQBGW9jl1GQtZjBS8ulwLnr2J7/fq4JzH//ycl7ZSMfgj/PGa",
         "balance": "0.00"
+        
     }
 ]
 

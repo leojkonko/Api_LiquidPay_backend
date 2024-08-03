@@ -29,6 +29,7 @@ Content-Type: application/json
     "password": "password"
 }
 
+Response:
 {
 
     "message": "User registered successfully"
@@ -51,14 +52,14 @@ Content-Type: application/json
 
 
 {
-
   "cpf": "00949196071",
   
-  "password": "password2"
-  
+  "password": "password2" 
 }
 
+
 or
+
 
 {
 

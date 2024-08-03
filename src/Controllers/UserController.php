@@ -236,6 +236,57 @@ class UserController
         // Chama o método do modelo para alterar a senha
         return $userModel->changePassword($userId, $current_password, $new_password);
     }
+
+    public function transferCredits($userId, $cpfRecipient, $amount)
+    {
+        if (!$userId || !$cpfRecipient || !$amount || !is_numeric($amount) || $amount <= 0) {
+            http_response_code(400);
+            return json_encode(['message' => 'Parâmetros inválidos. Envie user_id, cpf_recipient e amount válidos.']);
+        }
+
+        // Encontre o usuário destinatário
+        $recipient = User::findByCpf($cpfRecipient);
+        if (!$recipient) {
+            http_response_code(404);
+            return json_encode(['message' => 'Usuário destinatário não encontrado']);
+        }
+
+        // Encontre o usuário remetente
+        $sender = User::find($userId);
+        if (!$sender) {
+            http_response_code(404);
+            return json_encode(['message' => 'Usuário logado não encontrado']);
+        }
+
+        // Verifique se o saldo é suficiente
+        if ($sender->balance < $amount) {
+            http_response_code(400);
+            return json_encode(['message' => 'Saldo insuficiente para a transferência']);
+        }
+
+        // Realize a transferência e atualize o saldo
+        $transactionModel = new Transaction();
+        $result = $transactionModel->transferBalance($sender->id, $recipient->id, $amount);
+
+        if ($result) {
+            http_response_code(200);
+            return json_encode(['message' => 'Transferência realizada com sucesso']);
+        } else {
+            http_response_code(500);
+            return json_encode(['message' => 'Erro ao realizar a transferência']);
+        }
+    }
+
+    // private function logTransaction($userId, $amount, $type, $status)
+    // {
+    //     // Registro da transação para auditoria
+    //     $transaction = new Transaction();
+    //     $transaction->user_id = $userId;
+    //     $transaction->amount = $amount;
+    //     $transaction->type = $type;
+    //     $transaction->status = $status;
+    //     $transaction->save();
+    // }
 }
 
 //validar data

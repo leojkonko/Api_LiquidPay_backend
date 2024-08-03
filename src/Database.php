@@ -15,7 +15,7 @@ class Database
     public static function getInstance()
     {
         if (self::$instance === null) {
-            $dsn = 'mysql:host=localhost;dbname=test';
+            $dsn = 'mysql:host=localhost;dbname=liquidpay';
             $username = 'root';
             $password = '';
             self::$instance = new PDO($dsn, $username, $password);

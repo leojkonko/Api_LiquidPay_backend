@@ -116,6 +116,19 @@ handlePostRequest('/change-password', function ($request) {
     return $controller->changePassword($request);
 });
 
+handlePostRequest(
+    '/transfer-credits',
+    function ($data) {
+        $userId = $data['user_id'] ?? null;
+        $cpfRecipient = $data['cpf_recipient'] ?? null;
+        $amount = $data['amount'] ?? null;
+
+        $controller = new UserController();
+        return $controller->transferCredits($userId, $cpfRecipient, $amount);
+    }
+);
+
+
 
 function authVerified()
 {

@@ -7,15 +7,24 @@ php -S localhost:3333
 API LiquidPay Backend
 Funcionalidades da API
 
+
+
 POST 
+
 Host: localhost:3333/
+
 Route: http://localhost:3333/register 
+
 Content-Type: application/json
+
 
 {
     "name": "Giovana",
+    
     "cpf": "00949196073",
+    
     "email": "giovana@gmail.com",
+    
     "password": "password"
 }
 

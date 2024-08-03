@@ -50,11 +50,9 @@ Route: http://localhost:3333/login
 
 Content-Type: application/json
 
-
 {
 
-  "cpf": "00949196071",
-  
+  "cpf": "00949196071", 
   "password": "password2" 
   
 }
@@ -65,8 +63,7 @@ or
 
 {
 
-  "email": "email@dominio.com",
-  
+  "email": "email@dominio.com",  
   "password": "password2"
   
 }

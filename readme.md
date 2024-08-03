@@ -161,15 +161,24 @@ response:
     }
 ]
 
+
+
 //////////////////////////////////
 
+
+
 POST 
+
 Host: localhost:3333/
+
 Route: http://localhost:3333/api/add-credits
+
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
 Content-Type: application/json
 
 {
+
     "card_type": "credit",
     "card_number": "5460750905074011",
     "card_brand": "visa",
@@ -177,27 +186,42 @@ Content-Type: application/json
     "card_cvv": "123",
     "amount": 100,
     "user_id": 1
+    
 }
 
 response: 
 
 "{\"authMessage\":\"Authentication successful\",\"routeMessage\":\"You have accessed a protected route\",\"authenticated\":true}"{
+
     "message": "registro cadastrado com sucesso em transações"
-}{
-    "message4": "Créditos adicionados com sucesso no user id: :id"
+    
 }
+{
+
+    "message4": "Créditos adicionados com sucesso no user id: :id"
+    
+}
+
+
 
 //////////////////////////////////
 
+
+
 GET 
+
 Host: localhost:3333/
+
 Route: http://localhost:3333/statement?start_date=2023-01-01 00:00:00&end_date=2024-12-31 00:00:00&user_id=1
+
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
 Content-Type: application/json
 
 response: 
 
 "{\"authMessage\":\"Authentication successful\",\"routeMessage\":\"You have accessed a protected route\",\"authenticated\":true}"[
+    
     {
         "id": 1,
         "user_id": 1,
@@ -225,30 +249,49 @@ response:
         "created_at": "2024-08-02 20:01:03",
         "typeCard": "credit"
     }
+    
 ]
+
+
 
 //////////////////////////////////
 
+
+
 POST 
+
 Host: localhost:3333/
+
 Route: http://localhost:3333/transfer-credits
+
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
 Content-Type: application/json
 
 {
+
     "user_id": 1,
     "cpf_recipient": "00949196072",
     "amount": 100
+    
 }
 
 response: 
 
 "{\"authMessage\":\"Authentication successful\",\"routeMessage\":\"You have accessed a protected route\",\"authenticated\":true}"{
+
     "message": "Atualizado saldo do remetente: :remetente"
+    
 }{
+
     "message": "Atualizado saldo do receptor: :receptor"
+    
 }{
+
     "message": "Registro da tranferência: :transfer"
+    
 }{
+
     "message": "Transferência realizada com sucesso"
+    
 }

@@ -19,6 +19,7 @@ Content-Type: application/json
 
 
 {
+
     "name": "Giovana",
     
     "cpf": "00949196073",
@@ -29,24 +30,42 @@ Content-Type: application/json
 }
 
 {
+
     "message": "User registered successfully"
+    
 }
+
+
 
 //////////////////////////////////
 
+
+
 POST 
+
 Host: localhost:3333/
+
 Route: http://localhost:3333/login 
+
 Content-Type: application/json
 
+
 {
+
   "cpf": "00949196071",
+  
   "password": "password2"
+  
 }
+
 or
+
 {
+
   "email": "email@dominio.com",
+  
   "password": "password2"
+  
 }
 
 response: 

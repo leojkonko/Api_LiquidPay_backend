@@ -97,9 +97,9 @@ handlePostRequest('/api/add-credits', function ($request) {
 handleGetProtectedRequest(
     '/statement',
     function ($data) {
-        $user_id = $data['user_id'] ?? null;
-        $startDate = $data['start_date'] ?? null;
-        $endDate = $data['end_date'] ?? null;
+        $user_id = $data['user_id'];
+        $startDate = $data['start_date'];
+        $endDate = $data['end_date'];
 
         $controller = new UserController();
         return $controller->getStatement($user_id, $startDate, $endDate);
@@ -107,6 +107,14 @@ handleGetProtectedRequest(
 );
 
 
+handlePostRequest('/change-password', function ($request) {
+
+    // $user_id = $request['user_id'];
+    // $startDate = $request['current_password'];
+    // $endDate = $request['new_password'];
+    $controller = new UserController();
+    return $controller->changePassword($request);
+});
 
 
 function authVerified()

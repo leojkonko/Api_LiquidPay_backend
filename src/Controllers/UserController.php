@@ -217,6 +217,25 @@ class UserController
             return json_encode(['message' => 'Nenhuma transação encontrada para o período especificado']);
         }
     }
+
+    public function changePassword($request)
+    {
+        $userId = $request['user_id'];
+        $current_password = $request['current_password'];
+        $new_password = $request['new_password'];
+
+        if (
+            !$userId || !$current_password || !$new_password
+        ) {
+            http_response_code(400);
+            return json_encode(['message' => 'Parâmetros de data inválidos.']);
+        }
+        // Instancia o modelo de usuário
+        $userModel = new User();
+        echo json_encode(['message' => $current_password]);
+        // Chama o método do modelo para alterar a senha
+        return $userModel->changePassword($userId, $current_password, $new_password);
+    }
 }
 
 //validar data

@@ -13,21 +13,12 @@ use GuzzleHttp\Psr7\Message;
 
 class UserController
 {
-    // private $pdo;
-
-    // public function __construct(PDO $pdo)
-    // {
-    //     $this->pdo = $pdo;
-    // }
-
     public function register($request)
     {
-        // Validação dos dados de entrada
         if (empty($request['name']) || empty($request['cpf']) || empty($request['email']) || empty($request['password'])) {
             return Response::json(['error' => 'All fields are required'], 400);
         }
 
-        // Criação do usuário
         $user = new User($request);
         if ($user->save()) {
             return Response::json(['message' => 'User registered successfully'], 201);
@@ -38,7 +29,6 @@ class UserController
 
     public function login($request)
     {
-        // Validação dos dados de entrada
         if (empty($request['email']) && empty($request['cpf'])) {
             return Response::json(['error' => 'Email or cpf are required'], 400);
         }
@@ -53,14 +43,12 @@ class UserController
             return Response::json(['error' => 'Password are required'], 400);
         }
 
-        // Verificação do usuário
         if ($user && password_verify($request['password'], $user->password)) {
-            // Geração do token JWT
             $payload = [
-                'iss' => "your-domain.com",  // Emissor do token
-                'sub' => $user->id,          // Identificador do usuário
-                'iat' => time(),             // Hora de emissão
-                'exp' => time() + 3600       // Expiração (1 hora)
+                'iss' => "your-domain.com",
+                'sub' => $user->id,
+                'iat' => time(),
+                'exp' => time() + 3600
             ];
             $jwt = JWT::encode($payload, 'your-secret-key', 'HS256');
             return Response::json(['token' => $jwt], 200);
@@ -85,7 +73,6 @@ class UserController
         $amount = $request['amount'];
         $userId = $request['user_id'];
 
-        // 1. Validação do tipo de cartão
         if (!in_array(
             $type,
             ['debit', 'credit']
@@ -95,28 +82,24 @@ class UserController
             return;
         }
 
-        // 2. Validação do número do cartão
         if (!preg_match('/^\d{16}$/', $number)) {
             http_response_code(400);
             echo json_encode(['message' => 'Número de cartão inválido']);
             return;
         }
 
-        // 3. Validação da bandeira do cartão
         if (!in_array(strtolower($brand), ['visa', 'master'])) {
             http_response_code(400);
             echo json_encode(['message' => 'Bandeira do cartão inválida']);
             return;
         }
 
-        // 4. Validação da data de validade
         if (!preg_match('/^(0[1-9]|1[0-2])\/\d{2}$/', $valid)) {
             http_response_code(400);
             echo json_encode(['message' => 'Data de validade inválida']);
             return;
         }
 
-        // 5. Validação do valor
         if (
             !is_numeric($amount) || $amount % 2 != 0
         ) {
@@ -124,13 +107,12 @@ class UserController
             echo json_encode(['message' => 'Valor inválido para aprovação']);
             return;
         }
-        // 5. Validação do id
+
         if (!isset($userId)) {
             http_response_code(400);
             return json_encode(['message' => 'id user not found']);
         }
 
-        // Envio para a LiquidBank
         $response = $this->sendToLiquidBank([
             'type' => $type,
             'number' => $number,
@@ -140,12 +122,9 @@ class UserController
             'amount' => $amount
         ]);
 
-        //encontrar user correto
         $user = User::find($userId);
         $userId_to_number = $user->id;
 
-        //registro da transação
-        // Registro da transação (independentemente do status)
         $transactionId = $response['transaction']['id'];
         $transactionStatus = $response['transaction']['statusCode'];
         $transaction = new Transaction();
@@ -154,12 +133,9 @@ class UserController
             echo json_encode(['message' => "registro cadastrado com sucesso em transações"]);
         } else {
             echo json_encode(['message' => "erro register cadaster"]);
-        }
-
-        // return json_encode(['message111' => $response]);
+        };
         if ($response['transaction']['statusCode'] == 1) {
 
-            //atualiza saldo do usuario
             if ($user && $userId_to_number) {
                 $userModel = new User();
                 $response = $userModel->addCredits($userId_to_number, $amount);
@@ -203,9 +179,7 @@ class UserController
             http_response_code(400);
             return json_encode(['message' => 'Parâmetros de data inválidos. Envie start_date e end_date no formato YYYY-MM-DD']);
         }
-        // Função para validar a data
 
-        // return json_encode(['message' => $startDate . '///' . $endDate]);
         $transactionModel = new Transaction();
         $transactions = $transactionModel->getTransactionsByPeriod($user_id, $startDate, $endDate);
 
@@ -230,10 +204,8 @@ class UserController
             http_response_code(400);
             return json_encode(['message' => 'Parâmetros de data inválidos.']);
         }
-        // Instancia o modelo de usuário
         $userModel = new User();
-        echo json_encode(['message' => $current_password]);
-        // Chama o método do modelo para alterar a senha
+
         return $userModel->changePassword($userId, $current_password, $new_password);
     }
 
@@ -244,27 +216,23 @@ class UserController
             return json_encode(['message' => 'Parâmetros inválidos. Envie user_id, cpf_recipient e amount válidos.']);
         }
 
-        // Encontre o usuário destinatário
         $recipient = User::findByCpf($cpfRecipient);
         if (!$recipient) {
             http_response_code(404);
             return json_encode(['message' => 'Usuário destinatário não encontrado']);
         }
 
-        // Encontre o usuário remetente
         $sender = User::find($userId);
         if (!$sender) {
             http_response_code(404);
             return json_encode(['message' => 'Usuário logado não encontrado']);
         }
 
-        // Verifique se o saldo é suficiente
         if ($sender->balance < $amount) {
             http_response_code(400);
             return json_encode(['message' => 'Saldo insuficiente para a transferência']);
         }
 
-        // Realize a transferência e atualize o saldo
         $transactionModel = new Transaction();
         $result = $transactionModel->transferBalance($sender->id, $recipient->id, $amount);
 
@@ -276,20 +244,8 @@ class UserController
             return json_encode(['message' => 'Erro ao realizar a transferência']);
         }
     }
-
-    // private function logTransaction($userId, $amount, $type, $status)
-    // {
-    //     // Registro da transação para auditoria
-    //     $transaction = new Transaction();
-    //     $transaction->user_id = $userId;
-    //     $transaction->amount = $amount;
-    //     $transaction->type = $type;
-    //     $transaction->status = $status;
-    //     $transaction->save();
-    // }
 }
 
-//validar data
 function isValidDate($date, $format = 'Y-m-d H:i:s')
 {
     $d = DateTime::createFromFormat($format, $date);

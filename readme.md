@@ -1,5 +1,7 @@
 Para rodar localmente:
+
 cd ./public
+
 php -S localhost:3333
 
 API LiquidPay Backend

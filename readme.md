@@ -52,9 +52,11 @@ Content-Type: application/json
 
 
 {
+
   "cpf": "00949196071",
   
   "password": "password2" 
+  
 }
 
 

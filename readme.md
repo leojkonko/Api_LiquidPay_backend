@@ -4,6 +4,10 @@ cd ./public
 
 php -S localhost:3333
 
+
+https://documenter.getpostman.com/view/25407001/2sA3rwNZwt
+
+
 API LiquidPay Backend
 Funcionalidades da API
 

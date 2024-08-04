@@ -5,7 +5,13 @@ cd ./public
 php -S localhost:3333
 
 
+
+DOCUMENTAÇÃO ENDPOINTS:
+
 https://documenter.getpostman.com/view/25407001/2sA3rwNZwt
+
+
+
 
 
 API LiquidPay Backend
